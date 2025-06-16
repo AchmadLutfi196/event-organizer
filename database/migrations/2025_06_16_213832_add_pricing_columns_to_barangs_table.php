@@ -12,11 +12,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('barangs', function (Blueprint $table) {
-            // Menambahkan kolom harga sewa per hari
-            $table->decimal('harga_sewa_per_hari', 10, 2)->default(0)->after('stok');
+            // Menambahkan kolom harga sewa per hari setelah kolom stok
+            $table->decimal('harga_sewa_per_hari', 10, 2)->default(0)->after('stok')
+                  ->comment('Harga sewa barang per hari dalam rupiah');
             
-            // Menambahkan kolom biaya deposit
-            $table->decimal('biaya_deposit', 10, 2)->default(0)->after('harga_sewa_per_hari');
+            // Menambahkan kolom biaya deposit setelah harga sewa per hari
+            $table->decimal('biaya_deposit', 10, 2)->default(0)->after('harga_sewa_per_hari')
+                  ->comment('Biaya deposit yang harus dibayar untuk peminjaman barang');
         });
     }
 
