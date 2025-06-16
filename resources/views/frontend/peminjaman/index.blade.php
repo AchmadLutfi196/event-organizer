@@ -132,6 +132,48 @@
                                     </div>
                                 @endif
 
+                                <!-- Status Pembayaran -->
+                                @if($peminjaman->status == 'disetujui' || $peminjaman->payment_status)
+                                    <div class="mt-4 p-3 rounded-md 
+                                        {{ $peminjaman->payment_status == 'paid' ? 'bg-green-50 border border-green-200' : 
+                                           ($peminjaman->payment_status == 'pending' ? 'bg-yellow-50 border border-yellow-200' : 'bg-gray-50 border border-gray-200') }}">
+                                        <div class="flex items-center justify-between">
+                                            <p class="text-sm 
+                                                {{ $peminjaman->payment_status == 'paid' ? 'text-green-700' : 
+                                                   ($peminjaman->payment_status == 'pending' ? 'text-yellow-700' : 'text-gray-700') }}">
+                                                <span class="font-medium">Status Pembayaran:</span>
+                                                @if($peminjaman->payment_status == 'paid')
+                                                    ✅ Sudah Dibayar
+                                                @elseif($peminjaman->payment_status == 'pending')
+                                                    ⏳ Menunggu Pembayaran
+                                                @elseif($peminjaman->payment_status == 'failed')
+                                                    ❌ Pembayaran Gagal
+                                                @else
+                                                    ⏳ Belum Dibayar
+                                                @endif
+                                            </p>
+                                            @if($peminjaman->status == 'disetujui' && $peminjaman->payment_status != 'paid')
+                                                <a href="{{ route('frontend.peminjaman.payment', $peminjaman->id) }}" 
+                                                   class="inline-flex items-center px-3 py-1 border border-transparent text-xs font-medium rounded text-white bg-blue-600 hover:bg-blue-700">
+                                                    Bayar
+                                                </a>
+                                            @endif
+                                        </div>
+                                        @if($peminjaman->payment_status == 'paid' && $peminjaman->paid_at)
+                                            <p class="text-xs text-green-600 mt-1">
+                                                Dibayar pada: {{ $peminjaman->paid_at->format('d/m/Y H:i') }}
+                                            </p>
+                                        @endif
+                                        @if($peminjaman->formatted_total_pembayaran)
+                                            <p class="text-sm font-semibold 
+                                                {{ $peminjaman->payment_status == 'paid' ? 'text-green-700' : 
+                                                   ($peminjaman->payment_status == 'pending' ? 'text-yellow-700' : 'text-gray-700') }} mt-1">
+                                                Total: {{ $peminjaman->formatted_total_pembayaran }}
+                                            </p>
+                                        @endif
+                                    </div>
+                                @endif
+
                                 <!-- Warning untuk terlambat -->
                                 @if(($peminjaman->status == 'disetujui' || $peminjaman->status == 'dipinjam') && $peminjaman->tanggal_kembali_rencana < now() && !$peminjaman->tanggal_kembali_aktual)
                                     <div class="mt-4 p-3 bg-red-50 border border-red-200 rounded-md">

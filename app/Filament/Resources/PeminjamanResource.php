@@ -357,8 +357,7 @@ class PeminjamanResource extends Resource
                         $record->update(['status' => 'dipinjam']);
                     })
                     ->visible(fn (Peminjaman $record): bool => $record->status === 'disetujui'),
-                
-                Tables\Actions\Action::make('kembalikan')
+                  Tables\Actions\Action::make('kembalikan')
                     ->label('Kembalikan')
                     ->icon('heroicon-o-arrow-left-circle')
                     ->color('warning')
@@ -370,6 +369,73 @@ class PeminjamanResource extends Resource
                         ]);
                     })
                     ->visible(fn (Peminjaman $record): bool => $record->status === 'dipinjam'),
+                
+                Tables\Actions\Action::make('sync_payment')
+                    ->label('Sync Payment')
+                    ->icon('heroicon-o-arrow-path')
+                    ->color('gray')
+                    ->requiresConfirmation()
+                    ->action(function (Peminjaman $record) {
+                        if (!$record->midtrans_order_id) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Error')
+                                ->body('Tidak ada Order ID Midtrans untuk disinkronkan')
+                                ->danger()
+                                ->send();
+                            return;
+                        }
+
+                        try {
+                            \Midtrans\Config::$serverKey = config('midtrans.server_key');
+                            \Midtrans\Config::$isProduction = config('midtrans.is_production');
+                            
+                            $status = \Midtrans\Transaction::status($record->midtrans_order_id);
+                            $transactionStatus = $status->transaction_status ?? 'unknown';
+                            
+                            if (in_array($transactionStatus, ['capture', 'settlement'])) {
+                                $record->update([
+                                    'payment_status' => 'paid',
+                                    'paid_at' => now(),
+                                    'status' => 'disetujui',
+                                    'midtrans_response' => json_encode($status)
+                                ]);
+                                
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Success')
+                                    ->body('Status pembayaran berhasil disinkronkan: PAID')
+                                    ->success()
+                                    ->send();
+                                    
+                            } elseif (in_array($transactionStatus, ['deny', 'expire', 'cancel'])) {
+                                $record->update([
+                                    'payment_status' => 'failed',
+                                    'midtrans_response' => json_encode($status)
+                                ]);
+                                
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Info')
+                                    ->body('Status pembayaran berhasil disinkronkan: FAILED')
+                                    ->warning()
+                                    ->send();
+                            } else {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Info')
+                                    ->body("Status pembayaran masih: {$transactionStatus}")
+                                    ->info()
+                                    ->send();
+                            }
+                            
+                        } catch (\Exception $e) {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Error')
+                                ->body('Gagal sinkronisasi: ' . $e->getMessage())
+                                ->danger()
+                                ->send();
+                        }
+                    })
+                    ->visible(fn (Peminjaman $record): bool => 
+                        $record->payment_status === 'pending' && !empty($record->midtrans_order_id)
+                    ),
                 
                 Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),

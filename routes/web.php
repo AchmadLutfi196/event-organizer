@@ -43,7 +43,6 @@ Route::middleware([DomainMiddleware::class])->group(function () {
             Route::get('/frontend/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('frontend.peminjaman.show');
             Route::post('/frontend/peminjaman/get-barang-details', [PeminjamanController::class, 'getBarangDetails'])->name('frontend.peminjaman.get-barang-details');
             Route::get('/frontend/peminjaman/{id}/payment', [PeminjamanController::class, 'payment'])->name('frontend.peminjaman.payment');
-            Route::post('/frontend/peminjaman/payment/callback', [PeminjamanController::class, 'paymentCallback'])->name('frontend.peminjaman.payment.callback');
             Route::get('/frontend/peminjaman/payment/finish', [PeminjamanController::class, 'paymentFinish'])->name('frontend.peminjaman.payment.finish');
             Route::get('/frontend/peminjaman/payment/unfinish', [PeminjamanController::class, 'paymentUnfinish'])->name('frontend.peminjaman.payment.unfinish');
             Route::get('/frontend/peminjaman/payment/error', [PeminjamanController::class, 'paymentError'])->name('frontend.peminjaman.payment.error');
@@ -52,6 +51,12 @@ Route::middleware([DomainMiddleware::class])->group(function () {
             Route::get('/frontend/chat', [ChatController::class, 'index'])->name('frontend.chat.index');
         });
     });
+
+    // Webhook Routes (No Authentication Required)
+    // Midtrans Payment Callback - must be accessible without auth
+    Route::post('/frontend/peminjaman/payment/callback', [PeminjamanController::class, 'paymentCallback'])
+        ->name('frontend.peminjaman.payment.callback')
+        ->withoutMiddleware(['auth', 'verified']);
 
     // Admin Domain Routes (admin.inventaris.local)
     Route::domain(env('ADMIN_DOMAIN', 'admin.inventaris.local'))->group(function () {

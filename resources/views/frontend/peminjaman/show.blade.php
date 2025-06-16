@@ -159,6 +159,90 @@
                     </dl>
                 </div>
             </div>
+
+            <!-- Informasi Pembayaran -->
+            @if($peminjaman->status == 'disetujui' || $peminjaman->payment_status)
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-6 py-4 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Informasi Pembayaran</h3>
+                </div>
+                <div class="px-6 py-4">
+                    <dl class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2">
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Status Pembayaran</dt>
+                            <dd class="mt-1">
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium
+                                    {{ $peminjaman->payment_status == 'paid' ? 'bg-green-100 text-green-800' :
+                                       ($peminjaman->payment_status == 'pending' ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800') }}">
+                                    @if($peminjaman->payment_status == 'paid')
+                                        ✅ Sudah Dibayar
+                                    @elseif($peminjaman->payment_status == 'pending')
+                                        ⏳ Menunggu Pembayaran
+                                    @elseif($peminjaman->payment_status == 'failed')
+                                        ❌ Pembayaran Gagal
+                                    @else
+                                        ⏳ Belum Dibayar
+                                    @endif
+                                </span>
+                            </dd>
+                        </div>
+
+                        @if($peminjaman->paid_at)
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Tanggal Pembayaran</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $peminjaman->paid_at->format('d/m/Y H:i') }}</dd>
+                        </div>
+                        @endif
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Total Pembayaran</dt>
+                            <dd class="mt-1 text-lg font-semibold text-blue-600">{{ $peminjaman->formatted_total_pembayaran }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Biaya Sewa</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $peminjaman->formatted_total_biaya_sewa }}</dd>
+                        </div>
+
+                        <div>
+                            <dt class="text-sm font-medium text-gray-500">Deposit</dt>
+                            <dd class="mt-1 text-sm text-gray-900">{{ $peminjaman->formatted_total_deposit }}</dd>
+                        </div>
+                    </dl>
+
+                    @if($peminjaman->status == 'disetujui' && $peminjaman->payment_status != 'paid')
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="text-center">
+                                <a href="{{ route('frontend.peminjaman.payment', $peminjaman->id) }}" 
+                                   class="inline-flex items-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
+                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                    </svg>
+                                    Bayar Sekarang
+                                </a>
+                            </div>
+                        </div>
+                    @elseif($peminjaman->payment_status == 'paid')
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <div class="bg-green-50 border border-green-200 rounded-md p-4">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-green-700">
+                                            <strong>Pembayaran berhasil!</strong> Peminjaman Anda telah dikonfirmasi dan siap untuk diambil.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endif
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- Sidebar -->
