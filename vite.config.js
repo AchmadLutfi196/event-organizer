@@ -9,7 +9,9 @@ export default defineConfig({
                 'resources/css/auth.css',
                 'resources/js/app.js',
                 'resources/js/auth.js',
-                'resources/js/auth-transitions.js'
+                'resources/js/auth-transitions.js',
+                'resources/js/echo.js',
+                'resources/js/filament-realtime.js'
             ],
             refresh: true,
         }),

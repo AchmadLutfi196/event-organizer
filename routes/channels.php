@@ -30,3 +30,38 @@ Broadcast::channel('admin-presence', function ($user) {
     }
     return false;
 });
+
+// Real-time updates channels
+Broadcast::channel('barang-updates', function ($user) {
+    // All authenticated users can listen to barang updates
+    return true;
+});
+
+Broadcast::channel('peminjaman-updates', function ($user) {
+    // All authenticated users can listen to peminjaman updates
+    return true;
+});
+
+Broadcast::channel('user-updates', function ($user) {
+    // Only admins can listen to user updates
+    return $user->role === 'admin';
+});
+
+Broadcast::channel('kategori-updates', function ($user) {
+    // All authenticated users can listen to kategori updates
+    return true;
+});
+
+// Admin notifications - only for admins
+Broadcast::channel('admin-notifications', function ($user) {
+    return $user->role === 'admin' ? [
+        'id' => $user->id,
+        'name' => $user->name,
+        'role' => $user->role
+    ] : false;
+});
+
+// Private user notifications
+Broadcast::channel('user.{id}', function ($user, $id) {
+    return (int) $user->id === (int) $id;
+});

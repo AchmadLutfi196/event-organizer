@@ -13,6 +13,7 @@ use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
+use Livewire\Attributes\On;
 
 class BarangResource extends Resource
 {
@@ -131,6 +132,12 @@ class BarangResource extends Resource
             ]);
     }
 
+    #[On('echo:barang-updates,barang.updated')]
+    public function refreshTable(): void
+    {
+        $this->dispatch('$refresh');
+    }
+
     public static function table(Table $table): Table
     {
         return $table
@@ -235,6 +242,14 @@ class BarangResource extends Resource
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make()
                     ->requiresConfirmation(),
+                
+                // Add real-time action indicator
+                Action::make('realtime_status')
+                    ->label('Real-time Active')
+                    ->icon('heroicon-o-signal')
+                    ->color('success')
+                    ->disabled()
+                    ->visible(fn () => true)
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -242,7 +257,10 @@ class BarangResource extends Resource
                         ->requiresConfirmation(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->poll('10s') // Fallback polling every 10 seconds
+            ->deferLoading()
+            ->striped();
     }
 
     public static function getRelations(): array

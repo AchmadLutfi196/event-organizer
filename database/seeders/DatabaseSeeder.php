@@ -30,7 +30,10 @@ class DatabaseSeeder extends Seeder
         // Seed kategoris
         $this->call(KategoriSeeder::class);
 
-        // Buat sample barang
-        \App\Models\Barang::factory(20)->create();
+        // Buat sample barang yang realistis berdasarkan kategori
+        $this->call(BarangRealistisSeeder::class);
+        
+        // Jika ingin menambah lebih banyak barang random, uncomment baris berikut:
+        // \App\Models\Barang::factory(10)->create();
     }
 }
