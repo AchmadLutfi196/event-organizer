@@ -15,8 +15,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware([DomainMiddleware::class])->group(function () {
     
     // User Domain Routes (user.inventaris.local)
-    Route::domain(env('USER_DOMAIN', 'user.inventaris.local'))->group(function () {
-        // Route untuk halaman utama user
+    Route::domain('app.localhost')->group(function () {
+        Route::get('/', function () {
+            return view('user.home');
+        });
         Route::get('/', [HomeController::class, 'index'])->name('home');
 
         Route::post('/frontend/logout', [AuthenticatedSessionController::class, 'destroy'])
@@ -52,17 +54,15 @@ Route::middleware([DomainMiddleware::class])->group(function () {
         });
     });
 
-    // Webhook Routes (No Authentication Required)
-    // Midtrans Payment Callback - must be accessible without auth
-    Route::post('/frontend/peminjaman/payment/callback', [PeminjamanController::class, 'paymentCallback'])
-        ->name('frontend.peminjaman.payment.callback')
-        ->withoutMiddleware(['auth', 'verified']);
-
-    // Admin Domain Routes (admin.inventaris.local)
-    Route::domain(env('ADMIN_DOMAIN', 'admin.inventaris.local'))->group(function () {
-        // Redirect root to admin panel
+    // Admin Domain Routes (admin.localhost)
+    Route::domain('admin.localhost')->group(function () {
         Route::get('/', function () {
             return redirect('/admin');
+        });
+
+        // Filament admin routes
+        Route::get('/admin/login', function () {
+            return redirect('/admin/login');
         });
     });
 
@@ -74,39 +74,12 @@ Route::middleware([DomainMiddleware::class])->group(function () {
         }
         return app(HomeController::class)->index();
     })->name('home.fallback');
-
-    Route::post('/frontend/logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('frontend.logout');
-
-    Route::middleware('guest')->group(function () {
-        Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-        Route::post('register', [RegisteredUserController::class, 'store']);
-    });
-
-    // Route Frontend
-    Route::middleware(['auth'])->group(function () {
-        // Dashboard
-        Route::get('/frontend/dashboard', [DashboardController::class, 'index'])->name('frontend.dashboard');
-        
-        // Barang Routes
-        Route::get('/frontend/barang', [BarangController::class, 'index'])->name('frontend.barang.index');
-        Route::get('/frontend/barang/{id}', [BarangController::class, 'show'])->name('frontend.barang.show');
-        
-        // Peminjaman Routes
-        Route::get('/frontend/peminjaman', [PeminjamanController::class, 'index'])->name('frontend.peminjaman.index');
-        Route::get('/frontend/peminjaman/create', [PeminjamanController::class, 'create'])->name('frontend.peminjaman.create');
-        Route::post('/frontend/peminjaman', [PeminjamanController::class, 'store'])->name('frontend.peminjaman.store');
-        Route::get('/frontend/peminjaman/{id}', [PeminjamanController::class, 'show'])->name('frontend.peminjaman.show');
-        Route::post('/frontend/peminjaman/get-barang-details', [PeminjamanController::class, 'getBarangDetails'])->name('frontend.peminjaman.get-barang-details');
-        Route::get('/frontend/peminjaman/{id}/payment', [PeminjamanController::class, 'payment'])->name('frontend.peminjaman.payment');
-        Route::post('/frontend/peminjaman/payment/callback', [PeminjamanController::class, 'paymentCallback'])->name('frontend.peminjaman.payment.callback');
-        Route::get('/frontend/peminjaman/payment/finish', [PeminjamanController::class, 'paymentFinish'])->name('frontend.peminjaman.payment.finish');
-        Route::get('/frontend/peminjaman/payment/unfinish', [PeminjamanController::class, 'paymentUnfinish'])->name('frontend.peminjaman.payment.unfinish');
-        Route::get('/frontend/peminjaman/payment/error', [PeminjamanController::class, 'paymentError'])->name('frontend.peminjaman.payment.error');
-        
-        // Chat Routes
-        Route::get('/frontend/chat', [ChatController::class, 'index'])->name('frontend.chat.index');
-    });
 });
+
+// Webhook Routes (No Authentication Required)
+// Midtrans Payment Callback - must be accessible without auth
+Route::post('/frontend/peminjaman/payment/callback', [PeminjamanController::class, 'paymentCallback'])
+    ->name('frontend.peminjaman.payment.callback')
+    ->withoutMiddleware(['auth', 'verified']);
 
 require __DIR__.'/auth.php';
