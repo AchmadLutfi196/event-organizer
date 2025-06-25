@@ -1,6 +1,19 @@
 <!-- Font Awesome CDN -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
 
+<!-- Real-time WebSocket Integration -->
+<meta name="csrf-token" content="{{ csrf_token() }}">
+@vite(['resources/js/echo.js', 'resources/js/filament-simple.js'])
+
+<script>
+console.log('🚀 Filament Real-time Integration Loading...');
+console.log('Environment:', {
+    reverbHost: '{{ env('VITE_REVERB_HOST') }}',
+    reverbPort: '{{ env('VITE_REVERB_PORT') }}',
+    reverbScheme: '{{ env('VITE_REVERB_SCHEME') }}'
+});
+</script>
+
 <!-- Custom Chat Styles with Dark Mode Support -->
 <style>
     /* Light Mode */

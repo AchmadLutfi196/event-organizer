@@ -34,7 +34,11 @@ class BarangUpdated implements ShouldBroadcast
 
     public function broadcastAs(): string
     {
-        return 'barang.updated';
+        return match($this->action) {
+            'created' => 'barang.created',
+            'deleted' => 'barang.deleted',
+            default => 'barang.updated'
+        };
     }
 
     public function broadcastWith(): array

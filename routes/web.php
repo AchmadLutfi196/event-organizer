@@ -11,6 +11,70 @@ use App\Http\Controllers\Auth\RegisteredUserController;
 use App\Http\Middleware\DomainMiddleware;
 use Illuminate\Support\Facades\Route;
 
+// Standalone Realtime Dashboard (Livewire component)
+Route::get('/realtime-dashboard', \App\Livewire\RealtimeDashboard::class)
+    ->middleware(['auth'])
+    ->name('realtime.dashboard');
+
+// Test routes for Livewire Realtime Dashboard
+Route::get('/test-livewire-dashboard', function () {
+    // Create some test data updates
+    $barang = \App\Models\Barang::first();
+    if ($barang) {
+        $barang->update(['updated_at' => now()]);
+    }
+    
+    $peminjaman = \App\Models\Peminjaman::first();
+    if ($peminjaman) {
+        $peminjaman->update(['updated_at' => now()]);
+    }
+    
+    // Send test broadcast
+    broadcast(new \App\Events\TestEvent([
+        'message' => 'Livewire Dashboard Test at ' . now()->format('H:i:s'),
+        'timestamp' => now(),
+        'source' => 'test-route',
+        'user' => \Illuminate\Support\Facades\Auth::user()?->name ?? 'Anonymous'
+    ]));
+    
+    return response()->json([
+        'status' => 'success',
+        'message' => 'Test events sent to Livewire Dashboard',
+        'timestamp' => now()
+    ]);
+})->middleware('web')->name('test.livewire.dashboard');
+
+// Test broadcast route for debugging
+Route::post('/test-broadcast', function () {
+    broadcast(new \App\Events\TestEvent([
+        'message' => 'Test broadcast from API',
+        'timestamp' => now(),
+        'user' => \Illuminate\Support\Facades\Auth::user()?->name ?? 'Anonymous'
+    ]));
+    
+    return response()->json(['status' => 'Test event broadcasted']);
+})->middleware('web');
+
+// Test peminjaman update
+Route::get('/test-peminjaman-update', function () {
+    $peminjaman = \App\Models\Peminjaman::first();
+    if ($peminjaman) {
+        // Trigger update to test real-time
+        $peminjaman->touch();
+        
+        return response()->json([
+            'status' => 'Peminjaman updated',
+            'id' => $peminjaman->id,
+            'kode' => $peminjaman->kode_peminjaman
+        ]);
+    }
+    
+    return response()->json(['error' => 'No peminjaman found']);
+});
+
+// Debug route to test Livewire
+Route::get('/debug-barang', \App\Livewire\DebugBarangList::class)->name('debug.barang');
+
 // Apply domain middleware to all routes
 Route::middleware([DomainMiddleware::class])->group(function () {
     
@@ -25,9 +89,19 @@ Route::middleware([DomainMiddleware::class])->group(function () {
             ->name('frontend.logout');
 
         Route::middleware('guest')->group(function () {
-            Route::get('register', [RegisteredUserController::class, 'create'])->name('register');
-            Route::post('register', [RegisteredUserController::class, 'store']);
+            // Route register sudah ada di auth.php, tidak perlu duplikasi
         });
+
+        // Public test routes (no auth required)
+        Route::get('/test-barang-public', \App\Livewire\BarangList::class)->name('test.barang.public');
+        Route::get('/test-simple', \App\Livewire\TestSimple::class)->name('test.simple');
+        Route::get('/test-barang-livewire', function() {
+            return view('test-barang-livewire');
+        })->name('test.barang.livewire');
+
+        // Public routes untuk testing
+        Route::get('/frontend/barang-livewire', \App\Livewire\BarangList::class)->name('frontend.barang.livewire');
+        Route::get('/frontend/barang-test', [App\Http\Controllers\Frontend\BarangLivewireController::class, 'index'])->name('frontend.barang.test');
 
         // Route Frontend (User only)
         Route::middleware(['auth'])->group(function () {

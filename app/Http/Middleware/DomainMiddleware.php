@@ -20,7 +20,7 @@ class DomainMiddleware
         $adminDomain = env('ADMIN_DOMAIN', 'admin.inventaris.local');
 
         // Set domain type in session for easier access
-        if (str_contains($currentDomain, $userDomain) || str_contains($currentDomain, 'localhost:80')) {
+        if (str_contains($currentDomain, $userDomain) || str_contains($currentDomain, 'localhost:80') || str_contains($currentDomain, 'localhost:8000')) {
             session(['domain_type' => 'user']);
             config(['app.domain_type' => 'user']);
         } elseif (str_contains($currentDomain, $adminDomain) || str_contains($currentDomain, 'localhost:8080')) {

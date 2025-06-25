@@ -8,6 +8,7 @@ use App\Models\Barang;
 use App\Models\User;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -16,6 +17,7 @@ use Filament\Tables\Filters\Filter;
 use Filament\Tables\Actions\Action;
 use Illuminate\Database\Eloquent\Builder;
 use Carbon\Carbon;
+use Livewire\Attributes\On;
 
 class PeminjamanResource extends Resource
 {
@@ -28,6 +30,8 @@ class PeminjamanResource extends Resource
     protected static ?string $modelLabel = 'Peminjaman';
     
     protected static ?string $pluralModelLabel = 'Peminjaman';
+    
+    protected static ?string $slug = 'peminjaman';
     
     protected static ?int $navigationSort = 3;
 
@@ -99,7 +103,7 @@ class PeminjamanResource extends Resource
                         Forms\Components\DatePicker::make('tanggal_kembali_rencana')
                             ->label('Tanggal Rencana Kembali')
                             ->required()
-                            ->minDate(fn (Forms\Get $get) => $get('tanggal_pinjam') ?: now()),
+                            ->minDate(fn (Get $get) => $get('tanggal_pinjam') ?: now()),
                         
                         Forms\Components\DatePicker::make('tanggal_kembali_aktual')
                             ->label('Tanggal Kembali Aktual')
@@ -448,7 +452,10 @@ class PeminjamanResource extends Resource
                         ->requiresConfirmation(),
                 ]),
             ])
-            ->defaultSort('created_at', 'desc');
+            ->defaultSort('created_at', 'desc')
+            ->poll('10s') // Fallback polling every 10 seconds
+            ->deferLoading()
+            ->striped();
     }
 
     public static function getRelations(): array
@@ -461,7 +468,7 @@ class PeminjamanResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListPeminjamen::route('/'),
+            'index' => Pages\ListPeminjaman::route('/'),
             'create' => Pages\CreatePeminjaman::route('/create'),
             // 'view' => Pages\ViewPeminjaman::route('/{record}'),
             'edit' => Pages\EditPeminjaman::route('/{record}/edit'),

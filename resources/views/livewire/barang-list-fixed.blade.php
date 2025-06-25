@@ -1,77 +1,70 @@
-@extends('frontend.layouts.app')
-
-@section('title', 'Daftar Barang')
-
-@section('content')
 <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-    <!-- Migration Notice -->
-    <div class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
-        <div class="flex items-center">
-            <div class="flex-shrink-0">
-                <svg class="h-6 w-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-            </div>
-            <div class="ml-3">
-                <h3 class="text-lg font-medium text-blue-800">
-                    Fitur Real-time Tersedia!
-                </h3>
-                <p class="mt-2 text-blue-700">
-                    Halaman ini telah ditingkatkan dengan fitur real-time. Anda akan dialihkan ke versi terbaru yang dapat menampilkan update barang secara langsung saat admin menambah atau mengubah data.
-                </p>
-                <div class="mt-4">
-                    <a href="{{ route('frontend.barang.livewire') }}" 
-                       class="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                        Gunakan Versi Real-time →
-                    </a>
+    <!-- Header -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Daftar Barang</h1>
+        <p class="mt-2 text-gray-600">Real-time inventory list</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="bg-white shadow rounded-lg mb-6">
+        <div class="px-6 py-4">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <!-- Search -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input type="text" wire:model.live.debounce.300ms="search" 
+                           placeholder="Cari nama barang, kode, atau lokasi..."
+                           class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- Loading animation while redirecting -->
-    <div class="text-center py-12">
-        <div class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-600">
-            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Memuat versi real-time...
-        </div>
-    </div>
-</div>
-
-<script>
-// Auto-redirect after 3 seconds if not already redirected
-setTimeout(function() {
-    window.location.href = "{{ route('frontend.barang.livewire') }}";
-}, 3000);
-</script>
-@endsection
+                <!-- Kategori -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
+                    <select wire:model.live="kategori" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">Semua Kategori</option>
+                        @foreach($kategoris as $kat)
+                            <option value="{{ $kat->id }}">{{ $kat->nama }}</option>
+                        @endforeach
                     </select>
                 </div>
 
                 <!-- Kondisi -->
-                <div class="md:w-48">
-                    <label for="kondisi" class="block text-sm font-medium text-gray-700">Kondisi</label>
-                    <select name="kondisi" id="kondisi" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Kondisi</label>
+                    <select wire:model.live="kondisi" class="w-full border border-gray-300 rounded-md px-3 py-2 focus:ring-blue-500 focus:border-blue-500">
                         <option value="">Semua Kondisi</option>
-                        <option value="baik" {{ request('kondisi') == 'baik' ? 'selected' : '' }}>Baik</option>
-                        <option value="rusak ringan" {{ request('kondisi') == 'rusak ringan' ? 'selected' : '' }}>Rusak Ringan</option>
-                        <option value="perlu perbaikan" {{ request('kondisi') == 'perlu perbaikan' ? 'selected' : '' }}>Perlu Perbaikan</option>
+                        <option value="baik">Baik</option>
+                        <option value="rusak ringan">Rusak Ringan</option>
+                        <option value="perlu perbaikan">Perlu Perbaikan</option>
                     </select>
                 </div>
 
-                <!-- Button -->
-                <div class="flex space-x-2">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 focus:ring-2 focus:ring-blue-500">
-                        Cari
-                    </button>
-                    <a href="{{ route('frontend.barang.index') }}" class="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
+                <!-- Actions -->
+                <div class="flex items-end space-x-2">
+                    <button wire:click="resetFilters" 
+                            class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600 focus:ring-2 focus:ring-gray-500">
                         Reset
-                    </a>
+                    </button>
+                    <button wire:click="refresh" 
+                            class="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 focus:ring-2 focus:ring-green-500">
+                        <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh
+                    </button>
                 </div>
-            </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div wire:loading class="mb-4">
+        <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center">
+            <svg class="animate-spin h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <span class="text-blue-800">Memuat data...</span>
         </div>
     </div>
 
@@ -86,7 +79,7 @@ setTimeout(function() {
     @if($barangs->count() > 0)
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             @foreach($barangs as $barang)
-                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
+                <div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow {{ in_array($barang->id, $newBarangIds) ? 'ring-2 ring-blue-300 animate-pulse' : '' }}">
                     <!-- Image -->
                     <div class="h-48 bg-gray-200 relative">
                         @if($barang->foto)
@@ -106,6 +99,15 @@ setTimeout(function() {
                                 {{ $barang->stok_tersedia > 0 ? 'Tersedia' : 'Habis' }}
                             </span>
                         </div>
+
+                        <!-- New Badge -->
+                        @if(in_array($barang->id, $newBarangIds))
+                        <div class="absolute top-2 left-2">
+                            <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 animate-bounce">
+                                Baru!
+                            </span>
+                        </div>
+                        @endif
                     </div>
 
                     <!-- Content -->
@@ -115,17 +117,19 @@ setTimeout(function() {
                             <span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
                                 {{ $barang->kategori->nama }}
                             </span>
-                        </div>                        <!-- Title -->
+                        </div>
+
+                        <!-- Title -->
                         <h3 class="text-lg font-semibold text-gray-900 mb-1">{{ $barang->nama }}</h3>
                         
                         <!-- Price Info -->
                         @if($barang->harga_sewa_per_hari > 0 || $barang->biaya_deposit > 0)
                         <div class="mb-3">
                             @if($barang->harga_sewa_per_hari > 0)
-                            <div class="text-lg font-bold text-green-600">{{ $barang->formatted_harga_sewa }}/hari</div>
+                            <div class="text-lg font-bold text-green-600">Rp {{ number_format($barang->harga_sewa_per_hari, 0, ',', '.') }}/hari</div>
                             @endif
                             @if($barang->biaya_deposit > 0)
-                            <div class="text-sm text-blue-600">Deposit: {{ $barang->formatted_deposit }}</div>
+                            <div class="text-sm text-blue-600">Deposit: Rp {{ number_format($barang->biaya_deposit, 0, ',', '.') }}</div>
                             @endif
                         </div>
                         @endif
@@ -181,4 +185,3 @@ setTimeout(function() {
         </div>
     @endif
 </div>
-@endsection

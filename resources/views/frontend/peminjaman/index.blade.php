@@ -235,7 +235,4 @@
         </div>
     @endif
 </div>
-
-<!-- Add Alpine.js for dropdown -->
-<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
 @endsection

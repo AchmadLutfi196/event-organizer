@@ -17,6 +17,9 @@
     <!-- Scripts -->
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     
+    <!-- Livewire Styles -->
+    @livewireStyles
+    
     @stack('styles')
 </head>
 <body class="font-sans antialiased bg-gray-50">
@@ -38,7 +41,7 @@
                            class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('frontend.dashboard') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium">
                             Dashboard
                         </a>
-                        <a href="{{ route('frontend.barang.index') }}" 
+                        <a href="{{ route('frontend.barang.livewire') }}" 
                            class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('frontend.barang.*') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' }} text-sm font-medium">
                             Daftar Barang
                         </a>
@@ -99,7 +102,7 @@
                 <a href="{{ route('frontend.dashboard') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('frontend.dashboard') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium">
                     Dashboard
                 </a>
-                <a href="{{ route('frontend.barang.index') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('frontend.barang.*') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium">
+                <a href="{{ route('frontend.barang.livewire') }}" class="block pl-3 pr-4 py-2 border-l-4 {{ request()->routeIs('frontend.barang.*') ? 'border-blue-500 text-blue-700 bg-blue-50' : 'border-transparent text-gray-600 hover:text-gray-800 hover:bg-gray-50 hover:border-gray-300' }} text-base font-medium">
                     Daftar Barang
                 </a>
                 @auth
@@ -261,6 +264,83 @@
                 }
             });
         });
+
+        // Livewire event listeners for real-time notifications
+        document.addEventListener('livewire:initialized', () => {
+            // Listen for Livewire events
+            Livewire.on('barang-created', (event) => {
+                console.log('Barang created:', event);
+                showNotification('Barang Baru', event[0].message, 'success');
+            });
+
+            Livewire.on('barang-updated', (event) => {
+                console.log('Barang updated:', event);
+                showNotification('Barang Diperbarui', event[0].message, 'info');
+            });
+
+            Livewire.on('barang-deleted', (event) => {
+                console.log('Barang deleted:', event);
+                showNotification('Barang Dihapus', event[0].message, 'warning');
+            });
+        });
+
+        // Function to show notifications
+        function showNotification(title, message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto ring-1 ring-black ring-opacity-5 z-50 transform transition-all duration-300 translate-x-full`;
+            
+            const bgColor = type === 'success' ? 'bg-green-50 border-green-200' : 
+                           type === 'warning' ? 'bg-yellow-50 border-yellow-200' : 'bg-blue-50 border-blue-200';
+            const textColor = type === 'success' ? 'text-green-800' : 
+                             type === 'warning' ? 'text-yellow-800' : 'text-blue-800';
+            
+            notification.innerHTML = `
+                <div class="p-4 ${bgColor} border rounded-lg">
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <svg class="h-5 w-5 ${textColor}" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                        <div class="ml-3 w-0 flex-1 pt-0.5">
+                            <p class="text-sm font-medium ${textColor}">${title}</p>
+                            <p class="mt-1 text-sm ${textColor}">${message}</p>
+                        </div>
+                        <div class="ml-4 flex-shrink-0 flex">
+                            <button class="bg-white rounded-md inline-flex ${textColor} hover:opacity-75 focus:outline-none" onclick="this.parentElement.parentElement.parentElement.parentElement.remove()">
+                                <span class="sr-only">Close</span>
+                                <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(notification);
+            
+            // Animate in
+            setTimeout(() => {
+                notification.classList.remove('translate-x-full');
+                notification.classList.add('translate-x-0');
+            }, 100);
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.add('translate-x-full');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
     </script>
+    
+    <!-- Livewire Scripts -->
+    @livewireScripts
 </body>
 </html>

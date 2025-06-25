@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Route;
 
 // Public routes
 Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
-Route::get('/barang', [BarangController::class, 'index'])->name('barang.index');
+Route::get('/barang', \App\Livewire\BarangList::class)->name('barang.index');
 Route::get('/barang/{barang}', [BarangController::class, 'show'])->name('barang.show');
 
 // Auth routes untuk user biasa

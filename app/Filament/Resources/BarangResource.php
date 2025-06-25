@@ -133,6 +133,8 @@ class BarangResource extends Resource
     }
 
     #[On('echo:barang-updates,barang.updated')]
+    #[On('echo:barang-updates,barang.created')]
+    #[On('echo:barang-updates,barang.deleted')]
     public function refreshTable(): void
     {
         $this->dispatch('$refresh');

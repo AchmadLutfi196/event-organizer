@@ -10,8 +10,8 @@ class BarangObserver
 {
     public function created(Barang $barang): void
     {
-        // Broadcast event for real-time updates
-        broadcast(new BarangUpdated($barang, 'created'));
+        // Broadcast specific created event
+        broadcast(new BarangUpdated($barang, 'created'))->toOthers();
 
         // Send admin notification
         broadcast(new AdminNotification(

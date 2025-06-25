@@ -61,7 +61,7 @@ class RealtimeStatsWidget extends BaseWidget
                 ->description('Menunggu persetujuan')
                 ->descriptionIcon('heroicon-o-clock')
                 ->color($peminjamanPending > 0 ? 'warning' : 'success')
-                ->url(route('filament.admin.resources.peminjamans.index', ['tableFilters[status][value]' => 'pending']))
+                ->url(route('filament.admin.resources.peminjaman.index', ['tableFilters[status][value]' => 'pending']))
                 ->extraAttributes([
                     'class' => 'real-time-stat cursor-pointer'
                 ]),
@@ -70,7 +70,7 @@ class RealtimeStatsWidget extends BaseWidget
                 ->description('Barang sedang dipinjam')
                 ->descriptionIcon('heroicon-o-arrow-right-circle')
                 ->color($peminjamanAktif > 0 ? 'info' : 'gray')
-                ->url(route('filament.admin.resources.peminjamans.index', ['tableFilters[status][value]' => 'dipinjam']))
+                ->url(route('filament.admin.resources.peminjaman.index', ['tableFilters[status][value]' => 'dipinjam']))
                 ->extraAttributes([
                     'class' => 'real-time-stat cursor-pointer'
                 ]),

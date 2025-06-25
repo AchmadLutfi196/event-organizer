@@ -11,7 +11,8 @@ export default defineConfig({
                 'resources/js/auth.js',
                 'resources/js/auth-transitions.js',
                 'resources/js/echo.js',
-                'resources/js/filament-realtime.js'
+                'resources/js/filament-simple.js',
+                'resources/js/realtime-test.js'
             ],
             refresh: true,
         }),
